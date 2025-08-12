@@ -56,6 +56,7 @@ func main() {
 	http.HandleFunc("/post/new", a.RequireAuth(a.HandleNewPost))
 	http.HandleFunc("/comment/new", a.RequireAuth(a.HandleNewComment))
 	http.HandleFunc("/like", a.RequireAuth(a.HandleLike))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./internal/web/static"))))
 
 	log.Printf("listening on %s", *addr)
 	// Wrap the mux to handle 404/500

@@ -2,7 +2,7 @@
 
 {{define "title"}}Register{{end}}
 {{define "content"}}
-<div class="card" style="max-width:480px; margin:0 auto;">
+<div class="card card-narrow">
   <form method="post" action="/register">
     <label>Email</label>
     <input type="email" name="email" required>
@@ -10,7 +10,7 @@
     <input name="username" required>
     <label>Password</label>
     <input type="password" name="password" required>
-    <div style="margin-top:10px"><button class="btn primary" type="submit">Create account</button></div>
+    <div class="mt-10"><button class="btn primary" type="submit">Create account</button></div>
   </form>
 </div>
 {{end}}
