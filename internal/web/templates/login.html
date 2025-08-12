@@ -1,0 +1,14 @@
+{{define "login.html"}}{{template "layout.html" .}}{{end}}
+
+{{define "title"}}Login{{end}}
+{{define "content"}}
+<div class="card" >
+  <form method="post" action="/login">
+    <label>Email</label>
+    <input type="email" name="email" required>
+    <label>Password</label>
+    <input type="password" name="password" required>
+    <div style="margin-top:10px"><button class="btn primary" type="submit">Login</button></div>
+  </form>
+</div>
+{{end}}
