@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"forum/internal/app"
+	"forum-mvp/internal/app"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -48,9 +48,6 @@ func main() {
 	a := &app.App{DB: db, Templates: tpls, CookieName: "forum_session", SessionTTL: 7 * 24 * time.Hour}
 
 	// Routes
-// Static assets
-http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
-
 	http.HandleFunc("/", a.HandleIndex)
 	http.HandleFunc("/register", a.HandleRegister)
 	http.HandleFunc("/login", a.HandleLogin)
@@ -64,6 +61,7 @@ http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(".
 	// Wrap the mux to handle 404/500
 	wrappedMux := withCustomErrors(http.DefaultServeMux, a)
 
+	log.Printf("listening on %s", *addr)
 	log.Fatal(http.ListenAndServe(*addr, logRequest(wrappedMux)))
 }
 

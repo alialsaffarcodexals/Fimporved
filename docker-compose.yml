@@ -1,13 +1,10 @@
+version: "3.9"
 services:
   forum:
     build: .
-    image: forum-mvp:latest
-    container_name: forum-mvp
-    ports:
-      - "8080:8080"
+    ports: ["8080:8080"]
     volumes:
-      - forum_data:/data   # mount at /data (writable by app user)
+      - forum_data:/srv/data
     restart: unless-stopped
-
 volumes:
   forum_data: {}
