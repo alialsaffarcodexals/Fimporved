@@ -1,0 +1,50 @@
+{{define "body"}}
+<article class="card">
+  <header>
+    <h1 style="margin:.2rem 0;">{{.Post.Title}}</h1>
+    <div class="small">by <strong>{{.Post.Author}}</strong> &middot; {{formatTime .Post.CreatedAt}}</div>
+    <div style="margin:.25rem 0;">{{range .Post.Categories}}<span class="tag">{{.Slug}}</span>{{end}}</div>
+  </header>
+  <div style="white-space:pre-wrap;margin:.75rem 0;">{{.Post.Content}}</div>
+  <footer class="btn-row">
+    <form class="inline" method="POST" action="/post/{{.Post.ID}}/like">
+      <button class="btn btn-primary" type="submit">▲ Like ({{.Post.Likes}})</button>
+    </form>
+    <form class="inline" method="POST" action="/post/{{.Post.ID}}/dislike">
+      <button class="btn btn-danger" type="submit">▼ Dislike ({{.Post.Dislikes}})</button>
+    </form>
+  </footer>
+</article>
+
+<section class="card">
+  <h2>Comments</h2>
+  {{if .User}}
+    <form method="POST" action="/post/{{.Post.ID}}/comment">
+      <label>Add a comment</label>
+      <textarea name="body" rows="5" required maxlength="10000"></textarea>
+      <div style="margin-top:.5rem;"><button class="btn btn-primary">Post Comment</button></div>
+    </form>
+  {{else}}
+    <div>Please <a href="/login">login</a> to comment.</div>
+  {{end}}
+
+  {{if not .Comments}}
+    <div class="small" style="margin-top:1rem;">No comments yet.</div>
+  {{end}}
+
+  {{range .Comments}}
+    <article class="card">
+      <div class="small">by <strong>{{.Author}}</strong> &middot; {{formatTime .CreatedAt}}</div>
+      <div style="white-space:pre-wrap;margin:.5rem 0;">{{.Body}}</div>
+      <div class="btn-row">
+        <form class="inline" method="POST" action="/comment/{{.ID}}/like">
+          <button class="btn btn-primary" formaction="/comment/{{.ID}}/like" formmethod="POST">▲ Like ({{.Likes}})</button>
+        </form>
+        <form class="inline" method="POST" action="/comment/{{.ID}}/dislike">
+          <button class="btn btn-danger" formaction="/comment/{{.ID}}/dislike" formmethod="POST">▼ Dislike ({{.Dislikes}})</button>
+        </form>
+      </div>
+    </article>
+  {{end}}
+</section>
+{{end}}
