@@ -16,7 +16,9 @@ import (
 
 /*
 main configures the application and starts the HTTP server.
-It wires up the database, templates, routes and middleware.
+
+It wires up the database, templates and routes.
+
 */
 func main() {
 	addr := flag.String("addr", ":8080", "http listen address")
@@ -61,11 +63,8 @@ func main() {
 	http.HandleFunc("/comment/new", a.RequireAuth(a.HandleNewComment))
 	http.HandleFunc("/like", a.RequireAuth(a.HandleLike))
 
-	/*
-	   Wrap the mux with custom error handlers.
-	*/
-	wrappedMux := withCustomErrors(http.DefaultServeMux, a)
 
 	log.Printf("listening on %s", *addr)
-	log.Fatal(http.ListenAndServe(*addr, logRequest(wrappedMux)))
+	log.Fatal(http.ListenAndServe(*addr, http.DefaultServeMux))
+
 }
