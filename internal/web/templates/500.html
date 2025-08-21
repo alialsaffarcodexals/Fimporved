@@ -1,10 +1,11 @@
-{{define "500.html"}}{{template "layout.html" .}}{{end}}
+{{define "500.html"}}{{template "layout.html" .}}{{end}} {{/* 500 error page */}}
 
 {{define "title"}}Server Error{{end}}
 {{define "content"}}
-  <div class="card" style="text-align:center; padding:40px;">
+  <!-- 500 error card -->
+  <div class="card center p-40">
     <h1 class="error-code">500</h1>
-    <p style="color:var(--muted); margin-bottom:24px;">
+    <p class="text-muted mb-24">
       Oops! Something went wrong on our side.
     </p>
     <a href="/" class="btn primary">Go Home</a>
