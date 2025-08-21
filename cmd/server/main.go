@@ -1,39 +1,147 @@
 package main
 
 import (
-	
+	"database/sql"
+	"flag"
 	"fmt"
+	"html/template"
 	"log"
+	"net/http"
 	"os"
-	"strconv"
+	"path/filepath"
 	"time"
 
-	httpapp "forum/internal/http"
-	dbpkg "forum/internal/db"
+	"forum-mvp/internal/app"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
-	port := httpapp.MustGetEnv("PORT", "8080")
-	dbPath := httpapp.MustGetEnv("DB_PATH", "data/forum.db")
-	ttlHoursStr := httpapp.MustGetEnv("SESSION_TTL_HOURS", "24")
-	cookieSecure := httpapp.MustGetEnv("COOKIE_SECURE", "false") == "true"
+	addr := flag.String("addr", ":8080", "http listen address")
+	dataDir := flag.String("data", "./data", "data directory for sqlite")
+	tplDir := flag.String("templates", "./internal/web/templates", "templates dir")
+	flag.Parse()
 
-	var ttlHours int
-	if n, err := strconv.Atoi(ttlHoursStr); err == nil && n > 0 { ttlHours = n } else { ttlHours = 24 }
+	if err := os.MkdirAll(*dataDir, 0755); err != nil {
+		log.Fatal(err)
+	}
 
-	db, err := dbpkg.Open(dbPath)
-	if err != nil { log.Fatalf("open db: %v", err) }
-	defer db.Close()
+	dbPath := filepath.Join(*dataDir, "forum.db")
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	if err := dbpkg.Migrate(db, "sql/schema.sql"); err != nil { log.Fatalf("migrate: %v", err) }
-	if err := dbpkg.SeedDefaultCategories(db); err != nil { log.Fatalf("seed: %v", err) }
+	schema, err := os.ReadFile("internal/db/schema.sql")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err := db.Exec(string(schema)); err != nil {
+		log.Fatal(err)
+	}
 
-	app, err := httpapp.NewApp(db, time.Duration(ttlHours)*time.Hour, cookieSecure)
-	if err != nil { log.Fatalf("init app: %v", err) }
+	tpls, err := loadTemplates(*tplDir)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	addr := fmt.Sprintf(":%s", port)
-	if err := httpapp.StartServer(addr, app); err != nil {
-		log.Println("server stopped:", err)
-		os.Exit(1)
+	a := &app.App{DB: db, Templates: tpls, CookieName: "forum_session", SessionTTL: 7 * 24 * time.Hour}
+
+	// Routes
+	http.HandleFunc("/", a.HandleIndex)
+	http.HandleFunc("/register", a.HandleRegister)
+	http.HandleFunc("/login", a.HandleLogin)
+	http.HandleFunc("/logout", a.HandleLogout)
+	http.HandleFunc("/post", a.HandleShowPost)
+	http.HandleFunc("/post/new", a.RequireAuth(a.HandleNewPost))
+	http.HandleFunc("/comment/new", a.RequireAuth(a.HandleNewComment))
+	http.HandleFunc("/like", a.RequireAuth(a.HandleLike))
+
+	log.Printf("listening on %s", *addr)
+	// Wrap the mux to handle 404/500
+	wrappedMux := withCustomErrors(http.DefaultServeMux, a)
+
+	log.Printf("listening on %s", *addr)
+	log.Fatal(http.ListenAndServe(*addr, logRequest(wrappedMux)))
+}
+
+func logRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		next.ServeHTTP(w, r)
+		fmt.Printf("%s %s %s\n", r.Method, r.URL.Path, time.Since(start))
+	})
+}
+
+func loadTemplates(dir string) (map[string]*template.Template, error) {
+	layout := filepath.Join(dir, "layout.html")
+	pages, err := filepath.Glob(filepath.Join(dir, "*.html"))
+	if err != nil {
+		return nil, err
+	}
+	m := make(map[string]*template.Template)
+	for _, page := range pages {
+		if filepath.Base(page) == "layout.html" {
+			continue
+		}
+		t, err := template.ParseFiles(layout, page)
+		if err != nil {
+			return nil, err
+		}
+		m[filepath.Base(page)] = t
+	}
+	return m, nil
+}
+
+func withCustomErrors(next *http.ServeMux, app *app.App) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				w.Header().Set("Content-Type", "text/html; charset=utf-8")
+				w.Header().Set("Cache-Control", "no-store")
+				w.WriteHeader(http.StatusInternalServerError)
+				if tpl, ok := app.Templates["500.html"]; ok {
+					tpl.ExecuteTemplate(w, "500.html", appTemplateData(r, app))
+				} else {
+					http.Error(w, "Internal Server Error", 500)
+				}
+			}
+		}()
+
+		rw := &responseWriter{ResponseWriter: w, statusCode: 200}
+		next.ServeHTTP(rw, r)
+
+		if rw.statusCode == http.StatusNotFound {
+			if tpl, ok := app.Templates["404.html"]; ok {
+				w.Header().Set("Content-Type", "text/html; charset=utf-8")
+				w.Header().Set("Cache-Control", "no-store")
+				tpl.ExecuteTemplate(w, "404.html", appTemplateData(r, app))
+			} else {
+				http.NotFound(w, r)
+			}
+		}
+	})
+}
+
+// Capture status codes
+type responseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (rw *responseWriter) WriteHeader(code int) {
+	rw.statusCode = code
+	rw.ResponseWriter.WriteHeader(code)
+}
+
+// appTemplateData builds the data map like your other render calls
+func appTemplateData(r *http.Request, app *app.App) map[string]any {
+	uid, uname, logged := app.CurrentUser(r)
+	cats, _ := app.AllCategories()
+	return map[string]any{
+		"LoggedIn":   logged,
+		"UserID":     uid,
+		"Username":   uname,
+		"Categories": cats,
 	}
 }
