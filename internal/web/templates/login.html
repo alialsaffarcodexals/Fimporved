@@ -1,18 +1,17 @@
-{{define "login.html"}}{{template "layout.html" .}}{{end}} {{/* Login page */}}
-
-{{define "title"}}Login{{end}}
-{{define "content"}}
-<div class="card max-w-480">
-  <!-- Login form -->
-  <form method="post" action="/login">
-    <label>Email</label>
-    <input type="email" name="email" required>
-    <label>Password</label>
-    <input type="password" name="password" required>
+{{define "login.html"}}
+  {{template "layout.html" .}}
+  {{define "title"}}Login{{end}}
+  {{define "content"}}
+    <h1>Login</h1>
     {{if .Error}}
-    <p class="text-error">{{.Error}}</p>
+      <p class="error">{{.Error}}</p>
     {{end}}
-    <div class="mt-10"><button class="btn primary" type="submit">Login</button></div>
-  </form>
-</div>
+    <form method="post" action="/login" class="form">
+      <label>Email</label>
+      <input type="email" name="email" required />
+      <label>Password</label>
+      <input type="password" name="password" required />
+      <button type="submit" class="btn primary mt-2">Login</button>
+    </form>
+  {{end}}
 {{end}}

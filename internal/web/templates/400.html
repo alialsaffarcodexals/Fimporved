@@ -1,0 +1,10 @@
+{{define "400.html"}}
+  {{template "layout.html" .}}
+  {{define "title"}}Bad Request{{end}}
+  {{define "content"}}
+    <div class="error-page">
+      <h1 class="error-code">400</h1>
+      <p>Sorry, the request could not be processed.</p>
+    </div>
+  {{end}}
+{{end}}

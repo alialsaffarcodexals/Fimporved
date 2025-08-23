@@ -1,38 +1,55 @@
-{{define "index.html"}}{{template "layout.html" .}}{{end}} {{/* Index page */}}
-
-{{define "title"}}Forum — Home{{end}}
-{{define "content"}}
-<div class="grid">
-  <aside>
-    <div class="card">
-      <!-- Filter form -->
-      <form method="get" action="/">
-        <label>Category</label>
-        <select name="category">
+{{define "index.html"}}
+  {{template "layout.html" .}}
+  {{define "title"}}Forum{{end}}
+  {{define "content"}}
+    <h1 class="page-title">Posts</h1>
+    <form class="filter-form" method="get" action="/">
+      <div class="filter-group">
+        <label for="category">Category:</label>
+        <select id="category" name="category">
           <option value="">All</option>
           {{range .Categories}}
-            <option value="{{.}}" {{if eq $.Filter.category .}}selected{{end}}>{{.}}</option>
+            <option value="{{.}}" {{if eq $.SelectedCategory .}}selected{{end}}>{{.}}</option>
           {{end}}
         </select>
-        <label>My posts</label>
-        <input type="checkbox" name="mine" value="1" {{if eq .Filter.mine "1"}}checked{{end}}>
-        <label>Liked posts</label>
-        <input type="checkbox" name="liked" value="1" {{if eq .Filter.liked "1"}}checked{{end}}>
-        <div class="mt-8"><button class="btn primary" type="submit">Apply</button></div>
-      </form>
+      </div>
+      {{if .LoggedIn}}
+      <div class="filter-group">
+        <label for="filter">Filter:</label>
+        <select id="filter" name="filter">
+          <option value="" {{if eq .SelectedFilter ""}}selected{{end}}>All posts</option>
+          <option value="mine" {{if eq .SelectedFilter "mine"}}selected{{end}}>My posts</option>
+          <option value="liked" {{if eq .SelectedFilter "liked"}}selected{{end}}>Liked posts</option>
+        </select>
+      </div>
+      {{end}}
+      <button type="submit" class="btn ml-2">Apply</button>
+    </form>
+    <div class="post-list">
+      {{range .Posts}}
+        <div class="card post-card">
+          <h2><a href="/post?id={{.ID}}">{{.Title}}</a></h2>
+          <div class="meta">by {{.Author}} on {{.CreatedAt.Format "02 Jan 2006 15:04"}}</div>
+          <p>{{.Body}}</p>
+          <div class="meta">Categories: {{.Categories}}</div>
+          <div class="reactions">
+            <form action="/like" method="get" class="inline-form">
+              <input type="hidden" name="type" value="post" />
+              <input type="hidden" name="id" value="{{.ID}}" />
+              <input type="hidden" name="value" value="1" />
+              <button type="submit" class="btn small {{if eq .MyReaction 1}}active{{end}}">👍 {{.LikeCount}}</button>
+            </form>
+            <form action="/like" method="get" class="inline-form ml-1">
+              <input type="hidden" name="type" value="post" />
+              <input type="hidden" name="id" value="{{.ID}}" />
+              <input type="hidden" name="value" value="-1" />
+              <button type="submit" class="btn small {{if eq .MyReaction -1}}active{{end}}">👎 {{.DislikeCount}}</button>
+            </form>
+          </div>
+        </div>
+      {{else}}
+        <p>No posts found.</p>
+      {{end}}
     </div>
-  </aside>
-  <section>
-    {{range .Posts}}
-      <article class="card">
-        <h3 class="post-title"><a href="/post?id={{.ID}}">{{.Title}}</a></h3>
-        <div class="meta">by {{.Username}} • {{.CreatedAt}}</div>
-        <p>{{.Body}}</p>
-        <div class="meta-dark">👍 {{.Likes}} &nbsp; 👎 {{.Dislikes}}</div>
-      </article>
-    {{else}}
-      <div class="card">No posts yet.</div>
-    {{end}}
-  </section>
-</div>
+  {{end}}
 {{end}}

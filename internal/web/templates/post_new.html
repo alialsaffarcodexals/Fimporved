@@ -1,25 +1,22 @@
-{{define "post_new.html"}}{{template "layout.html" .}}{{end}} {{/* New post page */}}
-
-{{define "title"}}New Post{{end}}
-{{define "content"}}
-<div class="card max-w-720">
-  <!-- New post form -->
-  <form method="post" action="/post/new">
-    <label>Title</label>
-    <input name="title" required>
-    <label>Body</label>
-    <textarea name="body" rows="8" required></textarea>
-    <label>Categories (choose or type new)</label>
-    <div>
-      {{range .Categories}}
-        <label class="inline-label">
-          <input type="checkbox" name="category" value="{{.}}"> {{.}}
-        </label>
-      {{end}}
-    </div>
-    <small>You can also add new categories by typing them separated by commas:</small>
-    <input name="category" placeholder="e.g. Announcements, Go">
-    <div class="mt-10"><button class="btn primary" type="submit">Publish</button></div>
-  </form>
-</div>
+{{define "post_new.html"}}
+  {{template "layout.html" .}}
+  {{define "title"}}New Post{{end}}
+  {{define "content"}}
+    <h1>New Post</h1>
+    <form method="post" action="/post/new" class="form">
+      <label>Title</label>
+      <input type="text" name="title" required />
+      <label>Body</label>
+      <textarea name="body" rows="8" required></textarea>
+      <fieldset>
+        <legend>Categories</legend>
+        {{range .Categories}}
+          <label class="checkbox-label">
+            <input type="checkbox" name="categories" value="{{.}}" /> {{.}}
+          </label>
+        {{end}}
+      </fieldset>
+      <button type="submit" class="btn primary mt-2">Publish</button>
+    </form>
+  {{end}}
 {{end}}
