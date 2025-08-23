@@ -1,19 +1,17 @@
-{{define "register.html"}}
-  {{template "layout.html" .}}
-  {{define "title"}}Register{{end}}
-  {{define "content"}}
-    <h1>Register</h1>
-    {{if .Error}}
-      <p class="error">{{.Error}}</p>
-    {{end}}
-    <form method="post" action="/register" class="form">
-      <label>Email</label>
-      <input type="email" name="email" required />
-      <label>Username</label>
-      <input type="text" name="username" required />
-      <label>Password</label>
-      <input type="password" name="password" required />
-      <button type="submit" class="btn primary mt-2">Create account</button>
-    </form>
+{{define "title"}}Register{{end}}
+{{define "content"}}
+  <h1>Register</h1>
+  {{if .Error}}
+    <p class="error">{{.Error}}</p>
   {{end}}
+  <form method="post" action="/register" class="form">
+    <label>Email</label>
+    <input type="email" name="email" required />
+    <label>Username</label>
+    <input type="text" name="username" required />
+    <label>Password</label>
+    <input type="password" name="password" required />
+    <button type="submit" class="btn primary mt-2">Create account</button>
+  </form>
 {{end}}
+{{template "layout.html" .}}

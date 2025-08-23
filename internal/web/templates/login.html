@@ -1,17 +1,15 @@
-{{define "login.html"}}
-  {{template "layout.html" .}}
-  {{define "title"}}Login{{end}}
-  {{define "content"}}
-    <h1>Login</h1>
-    {{if .Error}}
-      <p class="error">{{.Error}}</p>
-    {{end}}
-    <form method="post" action="/login" class="form">
-      <label>Email</label>
-      <input type="email" name="email" required />
-      <label>Password</label>
-      <input type="password" name="password" required />
-      <button type="submit" class="btn primary mt-2">Login</button>
-    </form>
+{{define "title"}}Login{{end}}
+{{define "content"}}
+  <h1>Login</h1>
+  {{if .Error}}
+    <p class="error">{{.Error}}</p>
   {{end}}
+  <form method="post" action="/login" class="form">
+    <label>Email</label>
+    <input type="email" name="email" required />
+    <label>Password</label>
+    <input type="password" name="password" required />
+    <button type="submit" class="btn primary mt-2">Login</button>
+  </form>
 {{end}}
+{{template "layout.html" .}}

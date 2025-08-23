@@ -1,10 +1,8 @@
-{{define "500.html"}}
-  {{template "layout.html" .}}
-  {{define "title"}}Server Error{{end}}
-  {{define "content"}}
-    <div class="error-page">
-      <h1 class="error-code">500</h1>
-      <p>Oops! Something went wrong on our end.</p>
-    </div>
-  {{end}}
+{{define "title"}}Server Error{{end}}
+{{define "content"}}
+  <div class="error-page">
+    <h1 class="error-code">500</h1>
+    <p>Oops! Something went wrong on our end.</p>
+  </div>
 {{end}}
+{{template "layout.html" .}}

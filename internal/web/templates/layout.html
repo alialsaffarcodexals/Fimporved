@@ -13,7 +13,8 @@
         <a class="brand" href="/">Forum</a>
         {{if .LoggedIn}}
           <a href="/post/new" class="btn primary ml-2">New Post</a>
-        {{end}}
+  {{end}}
+
         <div class="spacer"></div>
         {{if .LoggedIn}}
           <span class="text-muted">Welcome, {{.Username}}</span>
