@@ -1,22 +1,20 @@
-{{define "post_new.html"}}
-  {{template "layout.html" .}}
-  {{define "title"}}New Post{{end}}
-  {{define "content"}}
-    <h1>New Post</h1>
-    <form method="post" action="/post/new" class="form">
-      <label>Title</label>
-      <input type="text" name="title" required />
-      <label>Body</label>
-      <textarea name="body" rows="8" required></textarea>
-      <fieldset>
-        <legend>Categories</legend>
-        {{range .Categories}}
-          <label class="checkbox-label">
-            <input type="checkbox" name="categories" value="{{.}}" /> {{.}}
-          </label>
-        {{end}}
-      </fieldset>
-      <button type="submit" class="btn primary mt-2">Publish</button>
-    </form>
-  {{end}}
+{{define "title"}}New Post{{end}}
+{{define "content"}}
+  <h1>New Post</h1>
+  <form method="post" action="/post/new" class="form">
+    <label>Title</label>
+    <input type="text" name="title" required />
+    <label>Body</label>
+    <textarea name="body" rows="8" required></textarea>
+    <fieldset>
+      <legend>Categories</legend>
+      {{range .Categories}}
+        <label class="checkbox-label">
+          <input type="checkbox" name="categories" value="{{.}}" /> {{.}}
+        </label>
+      {{end}}
+    </fieldset>
+    <button type="submit" class="btn primary mt-2">Publish</button>
+  </form>
 {{end}}
+{{template "layout.html" .}}

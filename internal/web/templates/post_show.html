@@ -1,62 +1,61 @@
-  {{template "layout.html" .}}
-  {{define "title"}}{{.Post.Title}}{{end}}
-  {{define "content"}}
-    <article class="post-detail">
-      <h1>{{.Post.Title}}</h1>
-      <div class="meta">by {{.Post.Author}} on {{.Post.CreatedAt.Format "02 Jan 2006 15:04"}}</div>
-      <p>{{.Post.Body}}</p>
-      <div class="meta">Categories: {{.Post.Categories}}</div>
-      <div class="reactions mt-1">
-        <form action="/like" method="get" class="inline-form">
-          <input type="hidden" name="type" value="post" />
-          <input type="hidden" name="id" value="{{.Post.ID}}" />
-          <input type="hidden" name="value" value="1" />
-          <button type="submit" class="btn small {{if eq .Post.MyReaction 1}}active{{end}}">👍 {{.Post.LikeCount}}</button>
-        </form>
-        <form action="/like" method="get" class="inline-form ml-1">
-          <input type="hidden" name="type" value="post" />
-          <input type="hidden" name="id" value="{{.Post.ID}}" />
-          <input type="hidden" name="value" value="-1" />
-          <button type="submit" class="btn small {{if eq .Post.MyReaction -1}}active{{end}}">👎 {{.Post.DislikeCount}}</button>
-        </form>
-      </div>
-    </article>
-    <section class="comments">
-      <h2>Comments ({{len .Post.Comments}})</h2>
-      {{range .Post.Comments}}
-        <div class="comment card">
-          <div class="meta">
-{{.Author}} at {{.CreatedAt.Format "02 Jan 2006 15:04"}}
-</div>
-          <p>{{.Body}}</p>
-          <div class="reactions">
-            <form action="/like" method="get" class="inline-form">
-              <input type="hidden" name="type" value="comment" />
-              <input type="hidden" name="id" value="{{.ID}}" />
-              <input type="hidden" name="post_id" value="{{$.Post.ID}}" />
-              <input type="hidden" name="value" value="1" />
-              <button type="submit" class="btn xsmall {{if eq .MyReaction 1}}active{{end}}">👍 {{.LikeCount}}</button>
-            </form>
-            <form action="/like" method="get" class="inline-form ml-1">
-              <input type="hidden" name="type" value="comment" />
-              <input type="hidden" name="id" value="{{.ID}}" />
-              <input type="hidden" name="post_id" value="{{$.Post.ID}}" />
-              <input type="hidden" name="value" value="-1" />
-              <button type="submit" class="btn xsmall {{if eq .MyReaction -1}}active{{end}}">👎 {{.DislikeCount}}</button>
-            </form>
-          </div>
+{{define "title"}}{{.Post.Title}}{{end}}
+{{define "content"}}
+  <article class="post-detail">
+    <h1>{{.Post.Title}}</h1>
+    <div class="meta">by {{.Post.Author}} on {{.Post.CreatedAt.Format "02 Jan 2006 15:04"}}</div>
+    <p>{{.Post.Body}}</p>
+    <div class="meta">Categories: {{.Post.Categories}}</div>
+    <div class="reactions mt-1">
+      <form action="/like" method="get" class="inline-form">
+        <input type="hidden" name="type" value="post" />
+        <input type="hidden" name="id" value="{{.Post.ID}}" />
+        <input type="hidden" name="value" value="1" />
+        <button type="submit" class="btn small {{if eq .Post.MyReaction 1}}active{{end}}">👍 {{.Post.LikeCount}}</button>
+      </form>
+      <form action="/like" method="get" class="inline-form ml-1">
+        <input type="hidden" name="type" value="post" />
+        <input type="hidden" name="id" value="{{.Post.ID}}" />
+        <input type="hidden" name="value" value="-1" />
+        <button type="submit" class="btn small {{if eq .Post.MyReaction -1}}active{{end}}">👎 {{.Post.DislikeCount}}</button>
+      </form>
+    </div>
+  </article>
+  <section class="comments">
+    <h2>Comments ({{len .Post.Comments}})</h2>
+    {{range .Post.Comments}}
+      <div class="comment card">
+        <div class="meta">{{.Author}} at {{.CreatedAt.Format "02 Jan 2006 15:04"}}</div>
+        <p>{{.Body}}</p>
+        <div class="reactions">
+          <form action="/like" method="get" class="inline-form">
+            <input type="hidden" name="type" value="comment" />
+            <input type="hidden" name="id" value="{{.ID}}" />
+            <input type="hidden" name="post_id" value="{{$.Post.ID}}" />
+            <input type="hidden" name="value" value="1" />
+            <button type="submit" class="btn xsmall {{if eq .MyReaction 1}}active{{end}}">👍 {{.LikeCount}}</button>
+          </form>
+          <form action="/like" method="get" class="inline-form ml-1">
+            <input type="hidden" name="type" value="comment" />
+            <input type="hidden" name="id" value="{{.ID}}" />
+            <input type="hidden" name="post_id" value="{{$.Post.ID}}" />
+            <input type="hidden" name="value" value="-1" />
+            <button type="submit" class="btn xsmall {{if eq .MyReaction -1}}active{{end}}">👎 {{.DislikeCount}}</button>
+          </form>
         </div>
-      {{else}}
-        <p>No comments yet.</p>
-      {{end}}
-      {{if .LoggedIn}}
-        <form action="/comment/new" method="post" class="form mt-3">
-          <input type="hidden" name="post_id" value="{{.Post.ID}}" />
-          <textarea name="body" rows="4" required placeholder="Your comment"></textarea>
-          <button type="submit" class="btn primary mt-1">Add comment</button>
-        </form>
-      {{else}}
-        <p><a href="/login">Log in</a> to comment.</p>
-      {{end}}
-    </section>
-  {{end}}
+      </div>
+    {{else}}
+      <p>No comments yet.</p>
+    {{end}}
+    {{if .LoggedIn}}
+      <form action="/comment/new" method="post" class="form mt-3">
+        <input type="hidden" name="post_id" value="{{.Post.ID}}" />
+        <textarea name="body" rows="4" required placeholder="Your comment"></textarea>
+        <button type="submit" class="btn primary mt-1">Add comment</button>
+      </form>
+    {{else}}
+      <p><a href="/login">Log in</a> to comment.</p>
+    {{end}}
+  </section>
+{{end}}
+{{template "layout.html" .}}
+
